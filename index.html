@@ -1,1 +1,208 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<title>Gerçekçi Rulet Simülasyonu</title>
+
+<style>
+body {
+    font-family: Arial, sans-serif;
+    background: #1e1e1e;
+    color: white;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+}
+
+.container {
+    background: #2c2c2c;
+    padding: 20px;
+    width: 360px;
+    border-radius: 12px;
+    text-align: center;
+}
+
+h1 { margin-bottom: 5px; }
+
+.gray {
+    font-size: 13px;
+    color: #aaa;
+}
+
+#wheel-container {
+    position: relative;
+    margin: 20px auto;
+    width: 220px;
+    height: 220px;
+}
+
+#wheel {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    border: 8px solid #444;
+    background: conic-gradient(
+        red 0deg 10deg,
+        black 10deg 20deg,
+        red 20deg 30deg,
+        black 30deg 40deg,
+        red 40deg 50deg,
+        black 50deg 60deg,
+        red 60deg 70deg,
+        black 70deg 80deg,
+        red 80deg 90deg,
+        black 90deg 100deg,
+        red 100deg 110deg,
+        black 110deg 120deg,
+        red 120deg 130deg,
+        black 130deg 140deg,
+        red 140deg 150deg,
+        black 150deg 160deg,
+        red 160deg 170deg,
+        black 170deg 180deg,
+        red 180deg 190deg,
+        black 190deg 200deg,
+        red 200deg 210deg,
+        black 210deg 220deg,
+        red 220deg 230deg,
+        black 230deg 240deg,
+        red 240deg 250deg,
+        black 250deg 260deg,
+        red 260deg 270deg,
+        black 270deg 280deg,
+        red 280deg 290deg,
+        black 290deg 300deg,
+        red 300deg 310deg,
+        black 310deg 320deg,
+        red 320deg 330deg,
+        black 330deg 340deg,
+        red 340deg 360deg
+    );
+    transition: transform 4s cubic-bezier(.17,.67,.83,.67);
+}
+
+#arrow {
+    position: absolute;
+    top: -10px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 30px;
+}
+
+input, button {
+    width: 100%;
+    margin-top: 8px;
+    padding: 8px;
+    border-radius: 5px;
+    border: none;
+}
+
+button {
+    background: green;
+    color: white;
+    cursor: pointer;
+}
+
+button:hover { background: darkgreen; }
+
+.withdraw {
+    background: #b30000;
+}
+.withdraw:hover {
+    background: #800000;
+}
+
+.result {
+    margin-top: 10px;
+    font-weight: bold;
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+    <h1>RULET</h1>
+    <div class="gray">(Simülasyon – gerçek para yok)</div>
+
+    <p id="balanceText">Toplam Bakiye: -</p>
+
+    <input type="number" id="startBalance" placeholder="Başlangıç Bakiyesi">
+    <button onclick="setBalance()">Bakiyeyi Başlat</button>
+
+    <div id="wheel-container">
+        <div id="arrow">▼</div>
+        <div id="wheel"></div>
+    </div>
+
+    <input type="number" id="betAmount" placeholder="Bahis Miktarı">
+    <input type="number" id="betNumber" placeholder="Sayı (1-36)">
+
+    <button onclick="spin()">Çevir</button>
+    <button class="withdraw" onclick="withdraw()">Çekil</button>
+
+    <div class="result" id="result"></div>
+</div>
+
+<script>
+let balance = null;
+let rotation = 0;
+
+function setBalance() {
+    const val = parseInt(startBalance.value);
+    if (val <= 0 || isNaN(val)) return alert("Geçerli bakiye gir");
+    balance = val;
+    updateBalance();
+}
+
+function updateBalance() {
+    balanceText.innerText = "Toplam Bakiye: " + balance + " USD";
+}
+
+function spin() {
+    if (balance === null) return alert("Önce bakiye gir");
+
+    const bet = parseInt(betAmount.value);
+    const number = parseInt(betNumber.value);
+
+    if (bet <= 0 || bet > balance) return alert("Geçersiz bahis");
+    if (number < 1 || number > 36) return alert("Sayı 1-36");
+
+    balance -= bet;
+    updateBalance();
+
+    const resultNumber = Math.floor(Math.random() * 36) + 1;
+    const anglePerNumber = 360 / 36;
+    const targetAngle = 360 - (resultNumber * anglePerNumber);
+
+    rotation += 1440 + targetAngle;
+    wheel.style.transform = `rotate(${rotation}deg)`;
+
+    setTimeout(() => {
+        if (resultNumber === number) {
+            const win = bet * 35;
+            balance += bet + win;
+            result.innerHTML = `🎉 Kazandın!<br>Gelen: ${resultNumber}<br>Kazanç: ${win}`;
+            result.style.color = "lightgreen";
+        } else {
+            result.innerHTML = `❌ Kaybettin<br>Gelen: ${resultNumber}`;
+            result.style.color = "salmon";
+        }
+        updateBalance();
+
+        if (balance <= 0) alert("Bakiyen bitti!");
+    }, 4000);
+}
+
+function withdraw() {
+    if (balance === null) return;
+    alert("Oyundan çekildin.\nToplam paran: " + balance + " USD");
+    location.reload();
+}
+</script>
+
+</body>
+</html>
+
 
